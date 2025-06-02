@@ -1,0 +1,6 @@
+sensor_type,application,manufacturer,accuracy,data_format,power_usage
+LIDAR,Autonomous Vehicles,Velodyne,2cm,PointCloud,8W
+IMU,Drones,STMicroelectronics,0.01 deg/sec,Quaternion,0.5W
+Accelerometer,Fitness Trackers,Bosch,±2g,Raw,0.2W
+Thermopile,Medical Diagnostics,Melexis,0.1°C,Analog,0.1W
+Radar,Traffic Monitoring,NXP,5cm,RF Signal,6W
