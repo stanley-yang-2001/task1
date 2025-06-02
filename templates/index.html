@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Explore high-tech innovations in robotics, sensor systems, and artificial intelligence."/>
+  <meta name="keywords" content="Robotics, AI, Artificial Intelligence, Sensors, LIDAR, SLAM, Neural Networks, Edge AI, Actuators"/>
+  <meta name="author" content="Advanced Automation Insights"/>
+  <title>Advanced Technologies: Robotics, Sensors, and AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Advanced Robotics, Sensors, and AI</h1>
+    <p>Next-Generation Automation through Intelligent Technologies</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. Robotics</h2>
+      <p>
+        Robotics integrates mechanical engineering, electrical systems, and real-time computing to design autonomous machines. Core components include actuators, microcontrollers, and dynamic feedback loops using PID controllers. Autonomous navigation is often achieved via SLAM (Simultaneous Localization and Mapping) and ROS (Robot Operating System).
+      </p>
+
+      <h2>2. Sensor Technologies</h2>
+      <p>
+        Modern sensors are the digital nervous system of intelligent systems. High-resolution LIDAR, IMUs, ultrasonic arrays, and visual-inertial odometry enable environment perception. Sensor fusion algorithms, including Kalman and particle filters, enhance real-time accuracy in robotics and AR/VR systems.
+      </p>
+
+      <h2>3. Artificial Intelligence</h2>
+      <p>
+        AI drives learning and decision-making in robotics. Deep learning architectures (CNNs, RNNs, Transformers) power computer vision and language understanding. Edge AI is enabling real-time inference on devices using ONNX or TensorRT. Reinforcement learning is used in autonomous drone control and industrial robotics.
+      </p>
+    </section>
+    <section>
+      <h2 id="header-alignment">3D Sensor Equipment Showcase (Laser)</h2>
+      <p>
+        Drag your cursor to rotate, roll the scroll wheel to zoom in and out.
+      </p>
+    <div id="sensor-viewer-section">
+      <canvas id="renderCanvas"></canvas>
+      <!-- Babylon.js CDN -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+      <!-- Your custom viewer script -->
+    <script src="/static/viewer.js"></script>
+    </div>
+
+    <!-- Babylon.js & viewer.js scripts -->
+  </section>
+
+
+  <section id="search-section">
+  <h2>🔎 Sensor Lookup</h2>
+  <div class="search-box">
+    <input type="text" id="search-query" placeholder="Search sensor database (e.g., LIDAR, accelerometer)..." />
+    <button onclick="performSearch()">Search</button>
+  </div>
+  <div id="search-results"></div>
+</section>
+  </main>
+
+  <!-- Chatbot UI -->
+  <div id="chatbot" class="collapsed">
+  <div id="chat-header">
+    🤖 Ask Me About Robotics & AI
+    <button id="chat-minimize" onclick="collapseChatbot()">−</button>
+  </div>
+  <div id="chat-log"></div>
+  <div id="chat-input">
+    <input type="text" id="user-prompt" placeholder="Ask something about robotics, AI, or sensors..." />
+    <button onclick="sendPrompt()">➤</button>
+  </div>
+</div>
+  <!-- Chatbot Toggle Button -->
+<button id="chat-toggle" onclick="toggleChatbot()">💬</button>
+
+  <footer>
+    &copy; 2025 Advanced Automation Insights
+  </footer>
+
+  <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+
+</body>
+</html>
