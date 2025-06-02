@@ -1,1 +1,0 @@
-to run app.py, use .venv\Scripts\python.exe app.py
