@@ -1,7 +1,6 @@
-<<<<<<< HEAD
+
 .venv/
 note.txt
 test.txt
-=======
-.venv/
->>>>>>> e4c5d60 (uploading files)
+download_and_process_models.py
+.env

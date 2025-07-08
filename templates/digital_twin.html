@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Twin - Drone Simulation</title>
+
+  <!-- CesiumJS -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/digital_twin_style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/telemetry.css') }}">
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+
+  <div id="controls">
+    <button onclick="startFlight()">Start</button>
+    <button onclick="pauseFlight()">Pause</button>
+  </div>
+
+  <!-- Motion Control Panel -->
+  <div id="controlPanel" style="padding:10px; background:#222; color:#eee; font-family:sans-serif; max-width: 500px;">
+
+  <button onclick="toggleMovementPanel()" style="margin-top:10px; margin-bottom:5px;">Toggle Motion Settings</button>
+
+  <div id="movementControls">
+    <button id="pauseBtn" onclick="togglePause()">Reset Motion</button>
+    <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
+      <legend style="padding:0 6px;">Motion Control</legend>
+      <label><input type="checkbox" id="enableMovement" checked /> Movement</label>
+      <!--<label style="margin-left:10px;"><input type="checkbox" id="enablePitch" checked /> Pitch</label>
+      <label style="margin-left:10px;"><input type="checkbox" id="enableRoll" checked /> Roll</label>
+      <label style="margin-left:10px;"><input type="checkbox" id="enableYaw" checked /> Yaw</label>
+      <label style="margin-left:10px;"><input type="checkbox" id="enableThrottle" checked /> Throttle</label> -->
+    </fieldset>
+
+    <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
+      <legend style="padding:0 6px;">Manual Direction (WASD + Q/E)</legend>
+      <p style="margin: 5px 0;">Use <b>WASD</b> to move horizontally, <b>Q</b> (up) and <b>E</b> (down). Min altitude: 30m AGL.</p>
+    </fieldset>
+  </div>
+</div>
+
+<script>
+  function toggleMovementPanel() {
+    const panel = document.getElementById("movementControls");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+  }
+</script>
+
+
+  <!-- Telemetry -->
+  <div id="telemetryPanel">
+    <div id="positionDisplay"></div>
+    <div id="velocityDisplay"></div>
+    <div id="headingDisplay"></div>
+    <div id="altitudeDisplay"></div>
+  </div>
+
+  <!-- Attribution -->
+  <div id="attribution">
+    Drone model licensed under
+    <a href="{{ url_for('static', filename='assets/3d/attribution.md') }}" target="_blank">CC-BY</a>
+  </div>
+
+  <!-- Cesium Token -->
+  <script>
+    window.CESIUM_ION_API_KEY = "{{ cesium_token }}";
+  </script>
+
+  <!-- Main JS -->
+  <script type="module" src="{{ url_for('static', filename='js/drone_sim.js') }}"></script>
+</body>
+</html>
