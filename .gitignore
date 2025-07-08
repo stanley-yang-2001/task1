@@ -1,0 +1,5 @@
+.venv/
+note.txt
+test.txt
+download_and_process_models.py
+.env

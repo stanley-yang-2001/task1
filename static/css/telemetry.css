@@ -1,0 +1,35 @@
+#telemetryPanel {
+  position: fixed;       /* or absolute if inside a relative container */
+  right: 10px;
+  bottom: 80px;          /* increase from something like 40px to 80px to move it up */
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  z-index: 1000;
+  max-width: 220px;
+}
+
+#controlPanel {
+  padding: 10px;
+  background: #222;
+  color: #eee;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+#pauseBtn {
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+#pauseBtn:hover {
+  background-color: #666;
+}

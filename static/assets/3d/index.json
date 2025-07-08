@@ -1,7 +1,15 @@
 [
   {
-    "name": "LIDAR Sensor",
-    "file": "lidar_optimized.glb",
-    "source": "Poly Pizza"
+    "name": "Laser",
+    "file": "Laser.glb",
+    "source": "Poly Pizza",
+    "author": "Pichuliru"
+  },
+  {
+    "name": "Drone",
+    "file:": "drone.glb",
+    "source": "Poly Pizza",
+    "author": "NateGazzard"
+    
   }
 ]
