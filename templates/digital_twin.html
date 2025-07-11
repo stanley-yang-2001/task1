@@ -15,6 +15,7 @@
 <body>
   <div id="cesiumContainer"></div>
 
+  <!-- Controls -->
   <div id="controls">
     <button onclick="startFlight()">Start</button>
     <button onclick="pauseFlight()">Pause</button>
@@ -22,41 +23,30 @@
 
   <!-- Motion Control Panel -->
   <div id="controlPanel" style="padding:10px; background:#222; color:#eee; font-family:sans-serif; max-width: 500px;">
-
-  <button onclick="toggleMovementPanel()" style="margin-top:10px; margin-bottom:5px;">Toggle Motion Settings</button>
-
-  <div id="movementControls">
-    <button id="pauseBtn" onclick="togglePause()">Reset Motion</button>
-    <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
-      <legend style="padding:0 6px;">Motion Control</legend>
-      <label><input type="checkbox" id="enableMovement" checked /> Movement</label>
-      <!--<label style="margin-left:10px;"><input type="checkbox" id="enablePitch" checked /> Pitch</label>
-      <label style="margin-left:10px;"><input type="checkbox" id="enableRoll" checked /> Roll</label>
-      <label style="margin-left:10px;"><input type="checkbox" id="enableYaw" checked /> Yaw</label>
-      <label style="margin-left:10px;"><input type="checkbox" id="enableThrottle" checked /> Throttle</label> -->
-    </fieldset>
-
-    <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
-      <legend style="padding:0 6px;">Manual Direction (WASD + Q/E)</legend>
-      <p style="margin: 5px 0;">Use <b>WASD</b> to move horizontally, <b>Q</b> (up) and <b>E</b> (down). Min altitude: 30m AGL.</p>
-    </fieldset>
+    <button onclick="toggleMovementPanel()" style="margin-top:10px; margin-bottom:5px;">Toggle Motion Settings</button>
+    <div id="movementControls">
+      <button id="pauseBtn" onclick="togglePause()">Reset Motion</button>
+      <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
+        <legend style="padding:0 6px;">Motion Control</legend>
+        <label><input type="checkbox" id="enableMovement" checked /> Movement</label>
+      </fieldset>
+      <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
+        <legend style="padding:0 6px;">Manual Direction (WASD + Q/E)</legend>
+        <p style="margin: 5px 0;">Use <b>WASD</b> to move horizontally, <b>Q</b> (up) and <b>E</b> (down). Min altitude: 30m AGL.</p>
+      </fieldset>
+    </div>
   </div>
-</div>
 
-<script>
-  function toggleMovementPanel() {
-    const panel = document.getElementById("movementControls");
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
-  }
-</script>
-
-
-  <!-- Telemetry -->
-  <div id="telemetryPanel">
-    <div id="positionDisplay"></div>
-    <div id="velocityDisplay"></div>
-    <div id="headingDisplay"></div>
-    <div id="altitudeDisplay"></div>
+  <!-- Telemetry Panel -->
+  <div id="telemetryPanel" style="padding: 10px; font-family: monospace; background: #111; color: #0f0;">
+    <h3>🛰️ Telemetry</h3>
+    <div><b>GPS</b>: <span id="positionDisplay"></span></div>
+    <div><b>Velocity</b>: <span id="velocityDisplay"></span></div>
+    <div><b>IMU</b>: Pitch: <span id="pitchDisplay"></span>, Roll: <span id="rollDisplay"></span>, Yaw: <span id="yawDisplay"></span></div>
+    <div><b>Accel</b>: <span id="accelDisplay"></span></div>
+    <div><b>Barometer</b>: Alt: <span id="altitudeDisplay"></span>, Pressure: <span id="pressureDisplay"></span> hPa</div>
+    <div><b>Battery</b>: <span id="batteryDisplay"></span>%</div>
+    <div><b>Temp</b>: <span id="temperatureDisplay"></span> °C</div>
   </div>
 
   <!-- Attribution -->
@@ -70,7 +60,25 @@
     window.CESIUM_ION_API_KEY = "{{ cesium_token }}";
   </script>
 
-  <!-- Main JS -->
+  <!-- Toggle Panel Script -->
+  <script>
+    function toggleMovementPanel() {
+      const panel = document.getElementById("movementControls");
+      panel.style.display = panel.style.display === "none" ? "block" : "none";
+    }
+  </script>
+
+  <!-- Drone Simulation -->
   <script type="module" src="{{ url_for('static', filename='js/drone_sim.js') }}"></script>
+
+  <!-- Main JS Modules -->
+  <script type="module">
+    import { initTelemetrySocket } from "{{ url_for('static', filename='js/telemetry_socket.js') }}";
+    import { initDashboardDisplay } from "{{ url_for('static', filename='js/dashboard.js') }}";
+
+    initTelemetrySocket("http://localhost:5000");  // Adjust to Flask server address
+    initDashboardDisplay();
+  </script>
+
 </body>
 </html>

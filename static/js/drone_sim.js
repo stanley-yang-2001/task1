@@ -1,4 +1,8 @@
 import { DronePhysics, initCannonWorld, DroneController } from './physics_engine.js';
+import { initTelemetrySocket, sendTelemetry } from './telemetry_socket.js';
+
+initTelemetrySocket();  // optionally pass Flask server URL
+
 
 let viewer, droneEntity, physics, world;
 let enuTransform, inverseEnuTransform;
@@ -228,17 +232,74 @@ function moveDroneHome(dt) {
   }
 }
 
+
+
 function updateTelemetry(pos, vel) {
+  // --- GPS: Convert local ENU position to lat/lon/alt ---
+  const localCart = new Cesium.Cartesian3(pos.x, pos.y, pos.z);
+  const globalCart = Cesium.Matrix4.multiplyByPoint(enuTransform, localCart, new Cesium.Cartesian3());
+  const cartographic = Cesium.Cartographic.fromCartesian(globalCart);
+  const gpsLat = Cesium.Math.toDegrees(cartographic.latitude);
+  const gpsLon = Cesium.Math.toDegrees(cartographic.longitude);
+  const gpsAlt = cartographic.height;
+
+  // --- IMU: Orientation (pitch, roll, yaw) and acceleration (simulated) ---
+  const ori = physics.getOrientation();
+  const accel = physics.getAcceleration ? physics.getAcceleration() : [0, 0, 0];  // optional
+
+  // --- Barometer: Use altitude and fake pressure ---
+  const baroAlt = gpsAlt;
+  const seaLevelPressure = 1013.25; // hPa
+  const pressure = seaLevelPressure * Math.exp(-baroAlt / 8434.5); // simple model
+
+  // --- Battery: simple discharge model (linear drain for demo) ---
+  if (!window.batteryLevel) window.batteryLevel = 100;
+  window.batteryLevel = Math.max(0, window.batteryLevel - 0.01);
+
+  // --- Temperature: fake sinusoidal fluctuation ---
+  const simulatedTemp = 20 + 5 * Math.sin(Date.now() / 60000); // fluctuates over time
+
+  // --- Structured Telemetry Object ---
+  window.telemetry = {
+    gps: { lat: gpsLat, lon: gpsLon, alt: gpsAlt },
+    imu: { pitch: ori.pitch, roll: ori.roll, yaw: ori.yaw, accel },
+    barometer: { alt: baroAlt, pressure },
+    battery: window.batteryLevel.toFixed(1),
+    temperature: simulatedTemp.toFixed(2)
+  };
+  sendTelemetry(window.telemetry);
+
+  // --- Display in UI (optional) ---
   const posEl = document.getElementById("positionDisplay");
   const velEl = document.getElementById("velocityDisplay");
   const headingEl = document.getElementById("headingDisplay");
   const altEl = document.getElementById("altitudeDisplay");
 
-  if (posEl) posEl.textContent = `X: ${pos.x.toFixed(2)}, Y: ${pos.y.toFixed(2)}, Z: ${pos.z.toFixed(2)}`;
+  if (posEl) posEl.textContent = `GPS: ${gpsLat.toFixed(5)}, ${gpsLon.toFixed(5)}, Alt: ${gpsAlt.toFixed(2)} m`;
   if (velEl) velEl.textContent = `Vx: ${vel.x.toFixed(2)}, Vy: ${vel.y.toFixed(2)}, Vz: ${vel.z.toFixed(2)}`;
-  if (headingEl) headingEl.textContent = `Yaw: ${Math.atan2(vel.y, vel.x).toFixed(2)} rad`;
-  if (altEl) altEl.textContent = `AGL: ${pos.z.toFixed(2)} m`;  // or compute relative to terrain if needed
+  if (headingEl) headingEl.textContent = `Yaw: ${ori.yaw.toFixed(2)} rad`;
+  if (altEl) altEl.textContent = `Baro Alt: ${baroAlt.toFixed(2)} m, Pressure: ${pressure.toFixed(1)} hPa`;
+
+  if (document.getElementById("pitchDisplay")) {
+  document.getElementById("pitchDisplay").textContent = ori.pitch.toFixed(2);
+  document.getElementById("rollDisplay").textContent = ori.roll.toFixed(2);
+  document.getElementById("yawDisplay").textContent = ori.yaw.toFixed(2);
 }
+if (document.getElementById("accelDisplay")) {
+  document.getElementById("accelDisplay").textContent = accel.map(v => v.toFixed(2)).join(", ");
+}
+if (document.getElementById("pressureDisplay")) {
+  document.getElementById("pressureDisplay").textContent = pressure.toFixed(1);
+}
+if (document.getElementById("batteryDisplay")) {
+  document.getElementById("batteryDisplay").textContent = window.batteryLevel.toFixed(1);
+}
+if (document.getElementById("temperatureDisplay")) {
+  document.getElementById("temperatureDisplay").textContent = simulatedTemp.toFixed(2);
+}
+
+}
+
 
 window.startFlight = () => {
   isPaused = false;

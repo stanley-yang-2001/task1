@@ -111,6 +111,22 @@ export class DronePhysics {
     return this.body.position;
   }
 
+
+  // still need tuning
+  getAcceleration() {
+  // Estimate acceleration from velocity difference
+  const currentVel = this.body.velocity;
+  const dt = 1 / 60; // or pass actual dt
+  if (!this.prevVel) this.prevVel = currentVel.clone();
+
+  const ax = (currentVel.x - this.prevVel.x) / dt;
+  const ay = (currentVel.y - this.prevVel.y) / dt;
+  const az = (currentVel.z - this.prevVel.z) / dt;
+
+  this.prevVel.copy(currentVel);
+  return [ax, ay, az];
+}
+
   getOrientation() {
     if (!this.body) return { pitch: 0, roll: 0, yaw: 0 };
     const euler = new CANNON.Vec3();
