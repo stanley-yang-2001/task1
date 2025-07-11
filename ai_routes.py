@@ -1,11 +1,17 @@
+from dotenv import load_dotenv
 from flask import Blueprint, request, jsonify, stream_with_context, Response
+
+import json
+import os
 import requests
 import sqlite3
-import json
+
+
+load_dotenv()
 
 ai_bp = Blueprint("ai", __name__)
 
-API_KEY = "a413eae73bde152867fdc842c2f4cf59955f0e6f7547c58ed8412d45faca9a87"
+API_KEY = os.getenv("TOGETHER_API_KEY")
 TOGETHER_URL = "https://api.together.xyz/v1/chat/completions"
 MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.1"
 
