@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from flask import Blueprint, request, jsonify, stream_with_context, Response
+from flask_socketio import SocketIO, emit
 
 import json
 import os
@@ -121,3 +122,64 @@ def search_sensors():
         for row in results
     ]
     return jsonify({"results": result_dicts})
+
+# prompt to ask AI based on the user's command
+def parse_command_to_mission(user_command):
+    prompt = f"""
+You are a drone mission planner.
+Convert the user's instruction into a JSON list of flight actions.
+
+Each action must be one of the following:
+- survey(lat, lon, alt)
+- go_to(lat, lon, alt)
+- return_to_base()
+- hold_position()
+
+Only return valid JSON in the following format:
+{{ "mission": [ {{ "action": "go_to", "lat": ..., "lon": ..., "alt": ... }}, ... ] }}
+
+User command: "{user_command}"
+"""
+
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "model": MODEL_NAME,
+        "stream": False,
+        "messages": [
+            {"role": "system", "content": "You are a drone mission planner. Convert user commands into structured flight plans with GPS coordinates."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+
+    try:
+        response = requests.post(TOGETHER_URL, headers=headers, json=data)
+        response.raise_for_status()
+
+        result = response.json()
+        raw_text = result["choices"][0]["message"]["content"]
+        mission = json.loads(raw_text.strip())
+        return mission
+
+    except json.JSONDecodeError:
+        print("[ERROR] Could not decode model response as JSON.")
+        return None
+    except Exception as e:
+        print(f"[ERROR] Mission parsing failed: {e}")
+        return None
+
+
+def register_socket_handlers(socketio):
+    @socketio.on("nl_command")
+    def handle_nl_command(data):
+        user_command = data.get("command", "")
+        print(f"📥 Received NL command: {user_command}")
+        mission_json = parse_command_to_mission(user_command)
+
+        if mission_json:
+            print(f"✅ Parsed mission: {mission_json}")
+            emit("mission_parsed", mission_json)
+        else:
+            emit("mission_error", {"error": "Could not parse command"})

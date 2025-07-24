@@ -9,6 +9,7 @@
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
   <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ai_control.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/digital_twin_style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/telemetry.css') }}">
 </head>
@@ -16,26 +17,39 @@
   <div id="cesiumContainer"></div>
 
   <!-- Controls -->
-  <div id="controls">
-    <button onclick="startFlight()">Start</button>
-    <button onclick="pauseFlight()">Pause</button>
+  <div id="controlPanel" style="padding:10px; background:#222; color:#eee; font-family:sans-serif; max-width: 500px;">
+
+  <!-- Tabs -->
+  <div id="tabButtons" style="margin-bottom: 10px;">
+    <button onclick="switchTab('motion')" class="tab-button active">Motion</button>
+    <button onclick="switchTab('ai')" class="tab-button">AI Control</button>
   </div>
 
   <!-- Motion Control Panel -->
-  <div id="controlPanel" style="padding:10px; background:#222; color:#eee; font-family:sans-serif; max-width: 500px;">
-    <button onclick="toggleMovementPanel()" style="margin-top:10px; margin-bottom:5px;">Toggle Motion Settings</button>
-    <div id="movementControls">
-      <button id="pauseBtn" onclick="togglePause()">Reset Motion</button>
-      <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
-        <legend style="padding:0 6px;">Motion Control</legend>
-        <label><input type="checkbox" id="enableMovement" checked /> Movement</label>
-      </fieldset>
-      <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
-        <legend style="padding:0 6px;">Manual Direction (WASD + Q/E)</legend>
-        <p style="margin: 5px 0;">Use <b>WASD</b> to move horizontally, <b>Q</b> (up) and <b>E</b> (down). Min altitude: 30m AGL.</p>
-      </fieldset>
-    </div>
+  <div id="movementControls">
+    <button id="pauseBtn" onclick="togglePause()">Reset Motion</button>
+    <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
+      <legend style="padding:0 6px;">Motion Control</legend>
+      <label><input type="checkbox" id="enableMovement" checked /> Movement</label>
+    </fieldset>
+    <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
+      <legend style="padding:0 6px;">Manual Direction (WASD + Q/E)</legend>
+      <p style="margin: 5px 0;">Use <b>WASD</b> to move horizontally, <b>Q</b> (up) and <b>E</b> (down). Min altitude: 30m AGL.</p>
+    </fieldset>
   </div>
+
+  <!-- AI Control Panel -->
+  <div id="aiControlPanel" style="display: none;">
+    <fieldset style="margin-top:10px; border:1px solid #444; padding:10px;">
+      <legend style="padding:0 6px;">AI Command</legend>
+      <p>Type a mission command like “Survey sector B then return to base”:</p>
+      <input type="text" id="aiCommandInput" placeholder="Enter mission..." style="width: 90%; padding: 5px;">
+      <button onclick="submitAICommand()" style="margin-top: 5px;">Send</button>
+      <div id="aiResponse" style="margin-top: 10px; color: #ccc; font-size: 0.9em;"></div>
+    </fieldset>
+  </div>
+
+</div>
 
   <!-- Telemetry Panel -->
   <div id="telemetryPanel" style="padding: 10px; font-family: monospace; background: #111; color: #0f0;">
@@ -44,7 +58,7 @@
     <div><b>Velocity</b>: <span id="velocityDisplay"></span></div>
     <div><b>IMU</b>: Pitch: <span id="pitchDisplay"></span>, Roll: <span id="rollDisplay"></span>, Yaw: <span id="yawDisplay"></span></div>
     <div><b>Accel</b>: <span id="accelDisplay"></span></div>
-    <div><b>Barometer</b>: Alt: <span id="altitudeDisplay"></span>, Pressure: <span id="pressureDisplay"></span> hPa</div>
+    <div><span id="altitudeDisplay"></span>, <span id="pressureDisplay"></span> hPa</div>
     <div><b>Battery</b>: <span id="batteryDisplay"></span>%</div>
     <div><b>Temp</b>: <span id="temperatureDisplay"></span> °C</div>
   </div>
@@ -60,25 +74,36 @@
     window.CESIUM_ION_API_KEY = "{{ cesium_token }}";
   </script>
 
-  <!-- Toggle Panel Script -->
+  <!-- Toggle Panel Script 
   <script>
     function toggleMovementPanel() {
       const panel = document.getElementById("movementControls");
       panel.style.display = panel.style.display === "none" ? "block" : "none";
     }
-  </script>
+  </script>-->
 
   <!-- Drone Simulation -->
   <script type="module" src="{{ url_for('static', filename='js/drone_sim.js') }}"></script>
 
   <!-- Main JS Modules -->
   <script type="module">
-    import { initTelemetrySocket } from "{{ url_for('static', filename='js/telemetry_socket.js') }}";
-    import { initDashboardDisplay } from "{{ url_for('static', filename='js/dashboard.js') }}";
+  import { switchTab, submitAICommand, setupAISocketHandlers } from "{{ url_for('static', filename='js/ai_control.js') }}";
+  import { initTelemetrySocket } from "{{ url_for('static', filename='js/telemetry_socket.js') }}";
+  import { initDashboardDisplay } from "{{ url_for('static', filename='js/dashboard.js') }}";
 
-    initTelemetrySocket("http://localhost:5000");  // Adjust to Flask server address
-    initDashboardDisplay();
-  </script>
+  // Initialize telemetry + dashboard
+  initTelemetrySocket("http://localhost:5000");
+  initDashboardDisplay();
+
+  // Attach AI handlers globally
+  window.switchTab = switchTab;
+  window.submitAICommand = submitAICommand;
+
+  // Optional: socket connection for AI feedback
+  if (window.socket) {
+    setupAISocketHandlers(window.socket);
+  }
+</script>
 
 </body>
 </html>

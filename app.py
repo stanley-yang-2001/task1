@@ -3,14 +3,17 @@ eventlet.monkey_patch()
 
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
-from ai_routes import ai_bp
+from ai_routes import ai_bp, register_socket_handlers
 import sqlite3
 import threading
 import os
 
 app = Flask(__name__)
+app.jinja_env.auto_reload = True
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 CESIUM_ION_API_KEY = os.getenv("CESIUM_ION_API_KEY")                        # Make Flask async-compatible
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')  # allow JS client to connect
+register_socket_handlers(socketio)
 app.register_blueprint(ai_bp)
 
 
@@ -39,5 +42,6 @@ if __name__ == "__main__":
     from fake_telemetry import start_fake_telemetry
     #app.run(debug=True)
     #start_fake_telemetry()
+    print("checkout http://localhost:5000")
     threading.Thread(target=start_fake_telemetry, daemon=True).start()
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=True)

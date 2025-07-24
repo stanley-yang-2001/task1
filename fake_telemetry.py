@@ -30,7 +30,7 @@ def telemetry_emitter():
     while True:
         data = generate_fake_telemetry()
         # ✅ DEBUG: Print outgoing telemetry
-        print("🔄 Emitting telemetry:", data)
+        # print("🔄 Emitting telemetry:", data)
         socketio.emit('telemetry', data)  # No need for broadcast=True
         time.sleep(3)
 

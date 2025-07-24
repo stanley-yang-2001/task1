@@ -1,5 +1,6 @@
 import { DronePhysics, initCannonWorld, DroneController } from './physics_engine.js';
 import { initTelemetrySocket, sendTelemetry } from './telemetry_socket.js';
+import { initMissionSocket } from './mission_socket.js';
 
 initTelemetrySocket();  // optionally pass Flask server URL
 
@@ -319,4 +320,7 @@ window.togglePause = () => {
   }
 };
 
-initCesium();
+//initCesium();
+initCesium().then(() => {
+  initMissionSocket(droneController, enuTransform, inverseEnuTransform, homePosition, physics);
+});

@@ -2,3 +2,7 @@ to run app.py, use .venv\Scripts\python.exe app.py
 to optimize 3d model, use the command: 
 blender --background --python convert.py -- input.obj/glb output.glb
 gltfpack -i path/to/glb_model -o new_file_name
+
+
+to test ai movement: go to lat: 35, lon: -144, alt: 30
+next step: command sent over socket, see ai_routes.py
